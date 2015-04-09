@@ -7,9 +7,9 @@ var d3 = require('d3');
 
 var AxisLine = React.createClass({
   
-    displayName: 'AxisLine',
+  displayName: 'AxisLine',
 
-    getDefaultProps() {
+  getDefaultProps() {
     return {
       innerTickSize: 1,
       outerTickSize: 1,

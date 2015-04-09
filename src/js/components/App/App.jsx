@@ -38,13 +38,20 @@ var App = React.createClass({
 
   render () {
     var data = this.state.data;
+    var tooltip = {
+        "hidden" : false,
+        "top" : "10px",
+        "left" : "100px",
+        "html" : "hello"
+        };
 
     return (
       <div className="App">
 
         <BarChart width={400}
                   height={300}
-                  data={data} />
+                  data={data}
+                  tooltip={tooltip} />
         <div><button onClick={this._onRandomData}>Change!</button></div>
       </div>
     );

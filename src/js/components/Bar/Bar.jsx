@@ -45,21 +45,32 @@ var Bar = React.createClass({
       //   .text("hello");c  
   },
 
-  _onMouseEnter(){
-      this.setState({
-        hover:true
-      });
-
+  _onMouseEnter(event){
+      if(!this.state.hover){
+          this.setState({
+            hover:true
+          });
+      }
+      this.props.tooltipHandler(event);// SEND Value
   },
+
+  _onMouseMove(event){
+      this.props.tooltipHandler(event);// SEND Value
+  },
+  
   _onMouseLeave(){
-      this.setState({
-        hover:false
-      });
+      if(this.state.hover){
+          this.setState({
+            hover:false
+          });
+      }
+      this.props.tooltipOff();
 
   },
   render: function() {
   
-    var label = this.props.value 
+    var label = this.props.value;
+
     
     //FONT X OFFSET
     var xOffset = (this.props.value >= 10) ? 
@@ -86,6 +97,7 @@ var Bar = React.createClass({
                 x={this.props.offset} 
                 y={this.props.availableHeight - 0} 
                 onMouseEnter={this._onMouseEnter}
+                onMouseMove={this._onMouseMove}
                 onMouseLeave={this._onMouseLeave}/>
           
           <text x={xOffset} 
