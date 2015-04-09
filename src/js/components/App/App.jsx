@@ -39,7 +39,7 @@ var App = React.createClass({
   render () {
     var data = this.state.data;
     var tooltip = {
-        "hidden" : false,
+        "hidden" : true,
         "top" : "10px",
         "left" : "100px",
         "html" : "hello"
