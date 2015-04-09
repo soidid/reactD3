@@ -36,7 +36,7 @@ var App = React.createClass({
 
       newArrayPie.push({
           text: label,
-          quantity : value
+          quantity : value+1
       }); 
     }
 
