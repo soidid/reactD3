@@ -2,7 +2,6 @@
 
 var React = require('react/addons');
 var d3 = require("d3");
-$ = require('jquery');
 
 var Bar = React.createClass({
   getDefaultProps: function() {
@@ -57,7 +56,7 @@ var Bar = React.createClass({
   _onMouseMove(event){
       this.props.tooltipHandler(event);// SEND Value
   },
-  
+
   _onMouseLeave(){
       if(this.state.hover){
           this.setState({
@@ -74,15 +73,15 @@ var Bar = React.createClass({
     
     //FONT X OFFSET
     var xOffset = (this.props.value >= 10) ? 
-    ($(window).width() > 400)? 
+    (window.innerWidth > 400)? 
     (this.props.offset + this.props.width/2 - 19) : (this.props.offset + this.props.width/2 - 14) : 
-    ($(window).width() > 400)?
+    (window.innerWidth > 400)?
     (this.props.offset + this.props.width/2 - 16) : (this.props.offset + this.props.width/2 - 10);
     
-    xOffset = (($(window).width() > 400) ? xOffset+7 : xOffset+5);
+    xOffset = ((window.innerWidth > 400) ? xOffset+7 : xOffset+5);
 
-    var fontSize = $(window).width() > 400 ? "20px" : "14px";
-    var strokeWidth = $(window).width() > 400 ? "1.2" : "0.8";
+    var fontSize = window.innerWidth > 400 ? "20px" : "14px";
+    var strokeWidth = window.innerWidth > 400 ? "1.2" : "0.8";
     
 
 
