@@ -13,13 +13,17 @@ var Bar = React.createClass({
     }
   },
 
+  getInitialState: function(){
+    return {
+      hover: false
+    }
+  },
+
   componentDidMount: function() {
     this._renderGraph();  
-     
   },
   componentDidUpdate: function() {
     this._renderGraph();  
-     
   },
 
   _renderGraph: function () {
@@ -31,21 +35,30 @@ var Bar = React.createClass({
       .attr('y', this.props.availableHeight - height)
       .attr('height', height);
 
+      // TODO: label animation
       // console.log(this.getDOMNode());
       // d3.select(this.getDOMNode())
       //   .append('text')
       //   .attr('x', this.props.offset)
       //   .attr('y', this.props.availableHeight - this.props.height)
       //   .attr('dy', "0.35em")
-      //   .text("hello");c
-      
-      // TODO: label animation
+      //   .text("hello");c  
   },
 
- 
-  render: function() {
-    
+  _onMouseEnter(){
+      this.setState({
+        hover:true
+      });
 
+  },
+  _onMouseLeave(){
+      this.setState({
+        hover:false
+      });
+
+  },
+  render: function() {
+  
     var label = this.props.value 
     
     //FONT X OFFSET
@@ -60,13 +73,21 @@ var Bar = React.createClass({
     var fontSize = $(window).width() > 400 ? "20px" : "14px";
     var strokeWidth = $(window).width() > 400 ? "1.2" : "0.8";
     
+
+
+
+    // Fill Color
+    var color = (this.state.hover) ? "rgb(135,184,37)" : this.props.color;
     return (
       <g>
-          <rect fill={this.props.color}
+          <rect fill={color}
                 width={this.props.width} 
                 height="0"
                 x={this.props.offset} 
-                y={this.props.availableHeight - 0} />
+                y={this.props.availableHeight - 0} 
+                onMouseEnter={this._onMouseEnter}
+                onMouseLeave={this._onMouseLeave}/>
+          
           <text x={xOffset} 
                 y={this.props.availableHeight - 10}
                 fontSize={fontSize}
