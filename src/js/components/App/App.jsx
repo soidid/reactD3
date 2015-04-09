@@ -36,7 +36,7 @@ var App = React.createClass({
 
       newArrayPie.push({
           text: label,
-          quantity : value+1
+          quantity : (value+1)*100
       }); 
     }
 
