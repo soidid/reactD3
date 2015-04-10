@@ -11,7 +11,7 @@ var PieChart = React.createClass({
       tooltip : {}
     }
   },
-  
+
   componentWillMount(){
     this.setState({
       tooltip: this.props.tooltip
@@ -41,12 +41,7 @@ var PieChart = React.createClass({
 
   },
 
-  getInitialState() {
-    return {
-      colorRange: this.props.colorRange,
-      arcRadius: Math.min(this.props.width, this.props.height) / 2,
-    };
-  },
+  
 
   _color() {
     var rangeData = [];
@@ -60,11 +55,28 @@ var PieChart = React.createClass({
       .range(this.state.colorRange); 
   },
 
+  getInitialState() {
+    return {
+      colorRange: this.props.colorRange,
+      radius: Math.min(this.props.innerWidth, this.props.innerHeight) / 2,
+      innerRadius: (Math.min(this.props.innerWidth, this.props.innerHeight) / 2) * 0.8,
+      outerRadius: (Math.min(this.props.innerWidth, this.props.innerHeight) / 2) * 0.4,
+      labelRadius: (Math.min(this.props.innerWidth, this.props.innerHeight) / 2) * 0.9,
+    };
+  },
+
   //arc 只是 group 的概念，像是 rect, path
   _arc() {
     return d3.svg.arc()
-      .outerRadius(this.state.arcRadius - 10)
-      .innerRadius(this.state.arcRadius/2);
+             .innerRadius(this.state.innerRadius)
+             .outerRadius(this.state.outerRadius - 10);
+     
+  },
+
+  _outerArc(){
+    return d3.svg.arc()
+             .innerRadius(this.state.labelRadius)
+             .outerRadius(this.state.labelRadius);
   },
 
   //把 data 轉成實際上可以畫的數據
@@ -115,6 +127,8 @@ var PieChart = React.createClass({
   render() {
     var { width,
           height,
+          innerWidth,
+          innerHeight,
           data } = this.props;
     var { tooltip } =  this.state;
 
@@ -122,6 +136,7 @@ var PieChart = React.createClass({
     var pieStartData = this._pieStart(data);
 
     var _arc = this._arc;
+    var _outerArc = this._outerArc;
     var _color = this._color;
 
     var arcItems = pieData.map((e,key)=>{
@@ -129,26 +144,59 @@ var PieChart = React.createClass({
         var d = _arc().call(null, pieStartData[key]);
         // console.log(pieStartData[key]);
         // console.log(e);
-
         var c = _color().call(null, key);
-        var centroid = _arc().centroid.call(null,e);
+
         
         
+        //計算文字位置
+        var radius = Math.min(innerWidth, innerHeight) / 2;
+        function midAngle(d){
+          return d.startAngle + (d.endAngle - d.startAngle)/2;
+        }
+
+        var labelPos = _outerArc().centroid.call(null,e);
+        console.log(labelPos);
+        labelPos[0] = radius * (midAngle(e) < Math.PI ? 1 : -1);
+        var textAnchor = midAngle(e) < Math.PI ? "start" : "end";
         var style = {
-          "text-anchor" : "middle"
+          "text-anchor" : textAnchor
         };
-        //<path fill={c} data={d}/>
+        console.log(labelPos);
+        console.log("------------");
+
+
+        //計算標線位置
+        var linePos = _outerArc().centroid.call(null,e);
+        linePos[0] = radius * 0.95 * (midAngle(e) < Math.PI ? 1 : -1);
+     
         var handleMove = this._onChangeTooltip.bind(null, e.data);
         var handleLeave = this._onLeaveTooltip.bind(null, e.data);
+
+        // <text transform={"translate("+centroid[0]+","+centroid[1]+")"}
+        //       dy={".35em"}
+        //       style={style}>e.data.text</text>
+
+        var innerPoint = _arc().centroid.call(null,e);
+        var outerPoint = _outerArc().centroid.call(null, e);
+        
         return (
           <g className="arc"
              data={e.data}
              onMouseMove={handleMove}
              onMouseLeave={handleLeave}>
               <path fill={c} d={d}/>
-              <text transform={"translate("+centroid[0]+","+centroid[1]+")"}
-                    dy={".35em"}
-                    style={style}>1234</text>
+
+              <polyline
+                  opacity={1}
+                  strokeWidth={1}
+                  stroke={"#666"}
+                  fill={"none"}
+                  points={[innerPoint, outerPoint, linePos]} />
+
+              <text dy=".35em"
+                    x={labelPos[0]}
+                    y={labelPos[1]}
+                    style={style}>{e.data.text}</text>
           </g>
         )
         

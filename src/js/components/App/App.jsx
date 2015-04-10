@@ -70,8 +70,10 @@ var App = React.createClass({
 
         <PieChart colorRange={colorRange} 
                   data={pieData} 
-                  width={300} 
-                  height={300} 
+                  width={400}
+                  height={330}
+                  innerWidth={300} 
+                  innerHeight={300} 
                   tooltip={tooltip} />
       </div>
     );
