@@ -25,7 +25,7 @@ var App = React.createClass({
     var newArrayPie = [];
 
 
-    for(var i=0;i<5;i++){
+    for(var i=0;i<6;i++){
       // 產生 0-9 的隨機數字
       var value = Math.floor(Math.random() * 10);
       var label = "item"+i;

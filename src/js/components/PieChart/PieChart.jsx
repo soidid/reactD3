@@ -8,7 +8,8 @@ var PieChart = React.createClass({
 
   getInitialState(){
     return {
-      tooltip : {}
+      tooltip : {},
+      currentHoverIndex : -1
     }
   },
 
@@ -99,14 +100,19 @@ var PieChart = React.createClass({
    
     var _pie = this._pie(data);
     var _arc = this._arc;
+    var currentHoverIndex = this.state.currentHoverIndex;
 
     var g =  d3.select(this.getDOMNode())
                .selectAll("path")
                
-               .transition().duration(1000)
+               
                .style("fill", function(d, i) { 
-                  return _this._color().call(null, i);
+                  var c = _this._color().call(null, i);
+                  var fillC = ( currentHoverIndex === i) ? "rgb(135,184,37)" : c;
+                  return fillC;
                 })
+
+               .transition().duration(1000)
                
                .attr("d", function(v,index){
                   var d = _arc().call(null, _pie[index]);
@@ -124,13 +130,28 @@ var PieChart = React.createClass({
     this._renderGraph();
   },
 
+  _onChangeColor(i) {
+    //console.log(i);
+    this.setState({
+      currentHoverIndex: i.index
+    });
+  },
+
+  _onResetColor() {
+    //console.log(i);
+    this.setState({
+      currentHoverIndex: -1
+    });
+  },
+
   render() {
     var { width,
           height,
           innerWidth,
           innerHeight,
           data } = this.props;
-    var { tooltip } =  this.state;
+    var { tooltip,
+          currentHoverIndex } =  this.state;
 
     var pieData = this._pie(data);
     var pieStartData = this._pieStart(data);
@@ -144,7 +165,7 @@ var PieChart = React.createClass({
         var d = _arc().call(null, pieStartData[key]);
         // console.log(pieStartData[key]);
         // console.log(e);
-        var c = _color().call(null, key);
+       
 
         
         
@@ -155,14 +176,14 @@ var PieChart = React.createClass({
         }
 
         var labelPos = _outerArc().centroid.call(null,e);
-        console.log(labelPos);
+        //console.log(labelPos);
         labelPos[0] = radius * (midAngle(e) < Math.PI ? 1 : -1);
         var textAnchor = midAngle(e) < Math.PI ? "start" : "end";
         var style = {
           "text-anchor" : textAnchor
         };
-        console.log(labelPos);
-        console.log("------------");
+        // console.log(labelPos);
+        // console.log("------------");
 
 
         //計算標線位置
@@ -179,12 +200,19 @@ var PieChart = React.createClass({
         var innerPoint = _arc().centroid.call(null,e);
         var outerPoint = _outerArc().centroid.call(null, e);
         
+        var boundChangeColor = this._onChangeColor.bind(null, {data: e.data, index: key});
+        var c = _color().call(null, key);
+        var fillC = (currentHoverIndex === key) ? "rgb(135,184,37)" : c;
+        
         return (
           <g className="arc"
              data={e.data}
              onMouseMove={handleMove}
              onMouseLeave={handleLeave}>
-              <path fill={c} d={d}/>
+              <path fill={fillC} 
+                    d={d}
+                    onMouseEnter={boundChangeColor}
+                    onMouseLeave={this._onResetColor}/>
 
               <polyline
                   opacity={1}
