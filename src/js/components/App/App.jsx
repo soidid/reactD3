@@ -68,7 +68,11 @@ var App = React.createClass({
         <div><button onClick={this._onRandomData}>Change!</button></div>
         <br/>
 
-        <PieChart colorRange={colorRange} data={pieData} width={300} height={300} />
+        <PieChart colorRange={colorRange} 
+                  data={pieData} 
+                  width={300} 
+                  height={300} 
+                  tooltip={tooltip} />
       </div>
     );
   }

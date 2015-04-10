@@ -2,12 +2,44 @@
 var React = require('react/addons');
 var d3 = require("d3");
 var Chart = require('../Chart/Chart.jsx');
+var Tooltip = require('../Tooltip/Tooltip.jsx');
 
 var PieChart = React.createClass({
 
-  propTypes: {
-    colorRange: React.PropTypes.array.isRequired
-  }, 
+  getInitialState(){
+    return {
+      tooltip : {}
+    }
+  },
+  
+  componentWillMount(){
+    this.setState({
+      tooltip: this.props.tooltip
+    })
+  },
+
+  _onChangeTooltip(i, event){
+    
+    var tooltip = this.state.tooltip;
+    tooltip.html = i.text;
+    
+    tooltip.top = event.clientY;
+    tooltip.left = event.screenX;
+    tooltip.hidden = false;
+    //console.log(tooltip.top + "," + tooltip.left);
+    this.setState({
+      tooltip: tooltip
+    })
+
+  },
+  _onLeaveTooltip(i, event){
+    var tooltip = this.state.tooltip;
+    tooltip.hidden = true;
+    this.setState({
+      tooltip: tooltip
+    })
+
+  },
 
   getInitialState() {
     return {
@@ -15,8 +47,6 @@ var PieChart = React.createClass({
       arcRadius: Math.min(this.props.width, this.props.height) / 2,
     };
   },
-  
-  _me: null,
 
   _color() {
     var rangeData = [];
@@ -43,8 +73,9 @@ var PieChart = React.createClass({
       .sort(null)
       .value(function(d) { return d.quantity; }).call(null,data);
   },
-
-   _pieStart(data) {
+  
+  //為了製造動畫效果，一開始大家都是 1
+  _pieStart(data) {
     return d3.layout.pie()
       .sort(null)
       .value(function(d) { return 1; }).call(null,data);
@@ -53,16 +84,7 @@ var PieChart = React.createClass({
   _renderGraph () {
     var _this = this;
     var data = this.props.data;
-    
-    
-  
-    // this._me = d3.select(this.getDOMNode()).append('g')
-    //              .attr("transform", "translate(" +
-    //                this.props.width / 2 + "," + this.props.height / 2 + ")"
-    //              ); 
    
-
-    //console.log(this._pie(data));
     var _pie = this._pie(data);
     var _arc = this._arc;
 
@@ -79,33 +101,6 @@ var PieChart = React.createClass({
                   return d;
 
                 });
-     
-   
-
-    
-    console.log(g);
-
-    // var g = this._me.selectAll(".arc")
-    //   .data(this._pie(data))
-    //   .enter().append("g")
-    //   .attr("class", "arc");
-
-    // g.append("path")
-    // .attr("d", this._arc())
-    // .style("fill", function(d, i) { 
-    //     return _this._color().call(null, i);
-    //   });
-      
-      // 
-      // 
-
-    // g.append("text")
-    //   .attr("transform", function(d) {
-    //     return "translate(" + _this._arc().centroid(d) + ")";
-    //   })
-    //   .attr("dy", ".35em")
-    //   .style("text-anchor", "middle")
-    //   .text(function(d) { return d.data.text; });
   },
 
   componentDidMount () {
@@ -113,19 +108,15 @@ var PieChart = React.createClass({
   },
 
   componentDidUpdate () {
-    console.log("component update!");
+    //console.log("component update!");
     this._renderGraph();
   },
-
-  // shouldComponentUpdate (nextProps) {
-  //   this._renderGraph();
-  //   return false;
-  // },
 
   render() {
     var { width,
           height,
           data } = this.props;
+    var { tooltip } =  this.state;
 
     var pieData = this._pie(data);
     var pieStartData = this._pieStart(data);
@@ -136,8 +127,8 @@ var PieChart = React.createClass({
     var arcItems = pieData.map((e,key)=>{
         var d1 = _arc().call(null,e);
         var d = _arc().call(null, pieStartData[key]);
-        console.log(pieStartData[key]);
-        console.log(e);
+        // console.log(pieStartData[key]);
+        // console.log(e);
 
         var c = _color().call(null, key);
         var centroid = _arc().centroid.call(null,e);
@@ -147,9 +138,13 @@ var PieChart = React.createClass({
           "text-anchor" : "middle"
         };
         //<path fill={c} data={d}/>
+        var handleMove = this._onChangeTooltip.bind(null, e.data);
+        var handleLeave = this._onLeaveTooltip.bind(null, e.data);
         return (
           <g className="arc"
-             data={e.data}>
+             data={e.data}
+             onMouseMove={handleMove}
+             onMouseLeave={handleLeave}>
               <path fill={c} d={d}/>
               <text transform={"translate("+centroid[0]+","+centroid[1]+")"}
                     dy={".35em"}
@@ -159,11 +154,18 @@ var PieChart = React.createClass({
         
     });
     return (
+      <div>
       <svg width={width} height={height}>
           <g transform={"translate(" + width/2 + "," + height/2 + ")"}>
              {arcItems}
           </g>
+
       </svg>
+      <Tooltip
+          hidden={tooltip.hidden}
+          top={tooltip.top}
+          left={tooltip.left}
+          html={tooltip.html}/></div>
     );
   }
 });

@@ -83,7 +83,7 @@ var BarChart = React.createClass({
     
     var tooltip = this.state.tooltip;
     tooltip.html = i;
-    tooltip.top = event.pageY;
+    tooltip.top = event.clientY;
     tooltip.left = event.screenX;
     tooltip.hidden = false;
     //console.log(tooltip.top + "," + tooltip.left);
